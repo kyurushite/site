@@ -33,39 +33,58 @@
     
 <script>
     // ★ここにデプロイした「ウェブアプリのURL」を貼り付けてください
-    const gasUrl = 'https://script.google.com/macros/s/AKfycbwSm8gPXlg666iKVyumPCyWetF8THFRXnVHRdcijmhH0LaKrFzUQB5qvuSG4NpjONWKag/exec'; 
+    const gasUrl = 'https://script.google.com/macros/s/XXXXX/exec'; 
+
+    // 画面にリンクを表示する専用の関数
+    function renderLinks(data) {
+        const container = document.getElementById('links-container');
+        if (!data || data.length === 0) return;
+
+        container.innerHTML = ''; // 「読み込み中」や古いキャッシュを消す
+        data.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'link-card';
+            card.innerHTML = `
+                <h3>${item.title || 'リンク ' + (index + 1)}</h3>
+                <form action="${item.url}" method="POST" rel="noreferrer" target="_blank">
+                    <input type="hidden" name="CERK" value="${item.cerk}">
+                    <input type="submit" value="こちらからお申し込みください" class="btn-submit">
+                </form>
+            `;
+            container.appendChild(card);
+        });
+    }
 
     async function loadLinks() {
+        const container = document.getElementById('links-container');
+        
+        // 1. 【爆速化】まずはブラウザに保存されている前回のデータを出す
+        const cachedData = localStorage.getItem('my_links_cache');
+        if (cachedData) {
+            renderLinks(JSON.parse(cachedData));
+        }
+
         try {
+            // 2. 裏でGASから最新データを取ってくる
             const response = await fetch(gasUrl);
-            const data = await response.json(); // GASからJSON形式で届く
+            const data = await response.json();
             
-            const container = document.getElementById('links-container');
-            container.innerHTML = '';
+            // 3. 最新データをブラウザに保存（次回用）
+            localStorage.setItem('my_links_cache', JSON.stringify(data));
 
-            data.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'link-card';
-                card.innerHTML = `
-                    <h3>${item.title || 'リンク ' + (index + 1)}</h3>
-                    <form action="${item.url}" method="POST" rel="noreferrer" target="_blank">
-                        <input type="hidden" name="CERK" value="${item.cerk}">
-                        <input type="submit" value="こちらからお申し込みください" class="btn-submit">
-                    </form>
-                `;
-                container.appendChild(card);
-            });
-
-            if (data.length === 0) {
-                container.innerHTML = '<p>現在、有効なお申し込みリンクはありません。</p>';
-            }
+            // 4. 最新データで画面を上書き（更新があればここで切り替わる）
+            renderLinks(data);
 
         } catch (error) {
             console.error('エラー:', error);
-            document.getElementById('links-container').innerText = 'データの取得に失敗しました。';
+            // キャッシュも何もない初回エラー時のみメッセージを表示
+            if (!cachedData) {
+                container.innerText = 'データの取得に失敗しました。';
+            }
         }
     }
 
+    // 実行
     loadLinks();
 </script>
     
