@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
+<html lang="ja"><head>
     <meta charset="utf-8">
     <title>お申し込みリンク</title>
     <style>
@@ -27,61 +25,14 @@
 
     <div class="container">
         <h2>お申し込み一覧</h2>
-        <div id="links-container">読み込み中...</div>
-    </div>
-
-    <script>
-        // ★ここにスプレッドシートで「ウェブに公開(CSV)」したURLを貼り付けてください
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzzqt6z_h5XwnYUs0gsiXRXX853fmIdwiZOOWO8tbn_Dr3MsZnJVl0BUi8IvCLY3y9xReGE401Vkdi/pub?output=csv';
-
-        async function loadLinks() {
-            try {
-                const response = await fetch(csvUrl);
-                const csvData = await response.text();
-                
-                // 改行で分割して行ごとの配列にする
-                const rows = csvData.split(/\r?\n/);
-                const container = document.getElementById('links-container');
-                container.innerHTML = '';
-
-                // 2行目（インデックス1）から読み込み開始
-                for (let i = 1; i < rows.length; i++) {
-                    // カンマで分割。値にカンマが含まれる場合を考慮して簡易的にトリム
-                    const columns = rows[i].split(',').map(item => item.trim());
-                    
-                    // 列が足りない、またはURL(B列)が空の場合はスキップ
-                    if (columns.length < 3 || !columns[1]) {
-                        continue;
-                    }
-
-                    const title = columns[0] || `リンク ${i}`; // タイトル空欄なら番号を表示
-                    const actionUrl = columns[1];
-                    const cerkValue = columns[2];
-
-                    const card = document.createElement('div');
-                    card.className = 'link-card';
-                    card.innerHTML = `
-                        <h3>${title}</h3>
-                        <form action="${actionUrl}" method="POST" rel="noreferrer" target="_blank">
-                            <input type="hidden" name="CERK" value="${cerkValue}">
+        <div id="links-container"><div class="link-card">
+                        <h3>うた生誕</h3>
+                        <form action="https://l-tike.com/st1/cgpkd4lvkzjthncrhfow" method="POST" rel="noreferrer" target="_blank">
+                            <input type="hidden" name="CERK" value="188a282193701e12ba9bc6bec4209a7d">
                             <input type="submit" value="こちらからお申し込みください" class="btn-submit">
                         </form>
-                    `;
-                    container.appendChild(card);
-                }
+                    </div></div>
+    </div>
 
-                // もし有効なリンクが1つもなかった場合
-                if (container.innerHTML === '') {
-                    container.innerHTML = '<p>現在、有効なお申し込みリンクはありません。</p>';
-                }
 
-            } catch (error) {
-                console.error('エラー:', error);
-                document.getElementById('links-container').innerText = 'データの取得に失敗しました。';
-            }
-        }
-
-        loadLinks();
-    </script>
-</body>
-</html>
+</body></html>
