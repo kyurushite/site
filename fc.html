@@ -1,4 +1,6 @@
-<html lang="ja"><head>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
     <meta charset="utf-8">
     <title>お申し込みリンク</title>
     <style>
@@ -25,14 +27,48 @@
 
     <div class="container">
         <h2>お申し込み一覧</h2>
-        <div id="links-container"><div class="link-card">
-                        <h3>うた生誕</h3>
-                        <form action="https://l-tike.com/st1/cgpkd4lvkzjthncrhfow" method="POST" rel="noreferrer" target="_blank">
-                            <input type="hidden" name="CERK" value="188a282193701e12ba9bc6bec4209a7d">
-                            <input type="submit" value="こちらからお申し込みください" class="btn-submit">
-                        </form>
-                    </div></div>
+        <div id="links-container">読み込み中...</div>
     </div>
 
+    
+<script>
+    // ★ここにデプロイした「ウェブアプリのURL」を貼り付けてください
+    const gasUrl = 'https://script.google.com/macros/s/AKfycbwSm8gPXlg666iKVyumPCyWetF8THFRXnVHRdcijmhH0LaKrFzUQB5qvuSG4NpjONWKag/exec'; 
 
-</body></html>
+    async function loadLinks() {
+        try {
+            const response = await fetch(gasUrl);
+            const data = await response.json(); // GASからJSON形式で届く
+            
+            const container = document.getElementById('links-container');
+            container.innerHTML = '';
+
+            data.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'link-card';
+                card.innerHTML = `
+                    <h3>${item.title || 'リンク ' + (index + 1)}</h3>
+                    <form action="${item.url}" method="POST" rel="noreferrer" target="_blank">
+                        <input type="hidden" name="CERK" value="${item.cerk}">
+                        <input type="submit" value="こちらからお申し込みください" class="btn-submit">
+                    </form>
+                `;
+                container.appendChild(card);
+            });
+
+            if (data.length === 0) {
+                container.innerHTML = '<p>現在、有効なお申し込みリンクはありません。</p>';
+            }
+
+        } catch (error) {
+            console.error('エラー:', error);
+            document.getElementById('links-container').innerText = 'データの取得に失敗しました。';
+        }
+    }
+
+    loadLinks();
+</script>
+    
+
+</body>
+</html>
